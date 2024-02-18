@@ -3,6 +3,7 @@ require('dotenv').config()
 const mongoose = require('mongoose');
 const app = express()
 const taskRoutes = require('./app/routes/taskRoute')
+const cors = require('cors')
 
 //Middleware
 app.use((req,res,next) => {
@@ -11,6 +12,8 @@ app.use((req,res,next) => {
 });
 
 app.use(express.json());
+
+app.use(cors())
 //Example for req and response 
 
 // app.get('/',(req, res) => {

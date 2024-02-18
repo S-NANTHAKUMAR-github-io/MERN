@@ -1,24 +1,28 @@
-import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
-    tasksList:[],
-    selectedTask:{},
-    isLoading:false,
-    error:''
+    tasksList: [],
+    selectedTask: {},
+    isLoading: false,
+    error: ''
 }
 
-const BASE_URL = 'https://mern-ng9l-gktngxoxa-tamilcodingwizard.vercel.app'
+const GET = 'http://localhost:4000/api/tasks/details'
+const POST = 'http://localhost:4000/api/tasks/create'
+const PATCH = 'http://localhost:4000/api/tasks/update'
+const DELETE = 'http://localhost:4000/api/tasks/delete'
+
 
 //GET
 export const getTasksFromServer = createAsyncThunk(
     "tasks/getTasksFromServer",
-    async (_,{rejectWithValue}) => {
-        const response = await fetch(BASE_URL)
+    async (_, { rejectWithValue }) => {
+        const response = await fetch(GET)
         if (response.ok) {
             const jsonResponse = await response.json()
             return jsonResponse
         } else {
-            return rejectWithValue({error:'No Tasks Found'})
+            return rejectWithValue({ error: 'No Tasks Found' })
         }
     }
 )
@@ -26,20 +30,20 @@ export const getTasksFromServer = createAsyncThunk(
 //POST 
 export const addTaskToServer = createAsyncThunk(
     "tasks/addTaskToServer",
-    async (task,{rejectWithValue}) => {
+    async (task, { rejectWithValue }) => {
         const options = {
-            method:'POST',
+            method: 'POST',
             body: JSON.stringify(task),
             headers: {
-                "Content-type":"application/json; charset=UTF-8"
+                "Content-type": "application/json; charset=UTF-8"
             }
         }
-        const response = await fetch(BASE_URL,options)
+        const response = await fetch(POST, options)
         if (response.ok) {
             const jsonResponse = await response.json()
             return jsonResponse
         } else {
-            return rejectWithValue({error:'Task Not Added'})
+            return rejectWithValue({ error: 'Task Not Added' })
         }
     }
 )
@@ -47,20 +51,20 @@ export const addTaskToServer = createAsyncThunk(
 //PATCH 
 export const updateTaskInServer = createAsyncThunk(
     "tasks/updateTaskInServer",
-    async (task,{rejectWithValue}) => {
+    async (task, { rejectWithValue }) => {
         const options = {
-            method:'PATCH',
+            method: 'PATCH',
             body: JSON.stringify(task),
             headers: {
-                "Content-type":"application/json; charset=UTF-8"
+                "Content-type": "application/json; charset=UTF-8"
             }
         }
-        const response = await fetch(BASE_URL + '/' + task._id,options)
+        const response = await fetch(PATCH + '/' + task._id, options)
         if (response.ok) {
             const jsonResponse = await response.json()
             return jsonResponse
         } else {
-            return rejectWithValue({error:'Task Not Updated'})
+            return rejectWithValue({ error: 'Task Not Updated' })
         }
     }
 )
@@ -68,16 +72,16 @@ export const updateTaskInServer = createAsyncThunk(
 //DELETE 
 export const deleteTaskFromServer = createAsyncThunk(
     "tasks/deleteTaskFromServer",
-    async (task,{rejectWithValue}) => {
+    async (task, { rejectWithValue }) => {
         const options = {
-            method:'DELETE',
+            method: 'DELETE',
         }
-        const response = await fetch(BASE_URL + '/' + task._id,options)
+        const response = await fetch(DELETE + '/' + task._id, options)
         if (response.ok) {
             const jsonResponse = await response.json()
             return jsonResponse
         } else {
-            return rejectWithValue({error:'Task Not Deleted'})
+            return rejectWithValue({ error: 'Task Not Deleted' })
         }
     }
 )
@@ -86,66 +90,66 @@ export const deleteTaskFromServer = createAsyncThunk(
 
 
 const tasksSlice = createSlice({
-    name:'tasksSlice',
+    name: 'tasksSlice',
     initialState,
     reducers: {
-        
-        removeTaskFromList:(state,action) => {
+
+        removeTaskFromList: (state, action) => {
             state.tasksList = state.tasksList.filter((task) => task._id !== action.payload._id)
         },
-        
-        setSelectedTask:(state,action) => {
+
+        setSelectedTask: (state, action) => {
             state.selectedTask = action.payload
         }
 
     },
-    extraReducers:(builder) => {
+    extraReducers: (builder) => {
         builder
-            .addCase(getTasksFromServer.pending,(state) => {
+            .addCase(getTasksFromServer.pending, (state) => {
                 state.isLoading = true
             })
-            .addCase(getTasksFromServer.fulfilled,(state,action) => {
+            .addCase(getTasksFromServer.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.error = ''
                 state.tasksList = action.payload
             })
-            .addCase(getTasksFromServer.rejected,(state,action) => {
+            .addCase(getTasksFromServer.rejected, (state, action) => {
                 state.error = action.payload.error
                 state.isLoading = false
                 state.tasksList = []
             })
-            .addCase(addTaskToServer.pending,(state) => {
+            .addCase(addTaskToServer.pending, (state) => {
                 state.isLoading = true
             })
-            .addCase(addTaskToServer.fulfilled,(state,action) => {
+            .addCase(addTaskToServer.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.error = ''
                 state.tasksList.push(action.payload)
             })
-            .addCase(addTaskToServer.rejected,(state,action) => {
+            .addCase(addTaskToServer.rejected, (state, action) => {
                 state.error = action.payload.error
                 state.isLoading = false
             })
-            .addCase(updateTaskInServer.pending,(state) => {
+            .addCase(updateTaskInServer.pending, (state) => {
                 state.isLoading = true
             })
-            .addCase(updateTaskInServer.fulfilled,(state,action) => {
+            .addCase(updateTaskInServer.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.error = ''
-                state.tasksList = state.tasksList.map((task) => task._id === action.payload._id ? action.payload : task )
+                state.tasksList = state.tasksList.map((task) => task._id === action.payload._id ? action.payload : task)
             })
-            .addCase(updateTaskInServer.rejected,(state,action) => {
+            .addCase(updateTaskInServer.rejected, (state, action) => {
                 state.error = action.payload.error
                 state.isLoading = false
             })
-            .addCase(deleteTaskFromServer.pending,(state) => {
+            .addCase(deleteTaskFromServer.pending, (state) => {
                 state.isLoading = true
             })
-            .addCase(deleteTaskFromServer.fulfilled,(state,action) => {
+            .addCase(deleteTaskFromServer.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.error = ''
             })
-            .addCase(deleteTaskFromServer.rejected,(state,action) => {
+            .addCase(deleteTaskFromServer.rejected, (state, action) => {
                 state.error = action.payload.error
                 state.isLoading = false
             })
@@ -153,6 +157,6 @@ const tasksSlice = createSlice({
 
 })
 
-export const {addTaskToList,removeTaskFromList,updateTaskInList,setSelectedTask} = tasksSlice.actions
+export const { addTaskToList, removeTaskFromList, updateTaskInList, setSelectedTask } = tasksSlice.actions
 
 export default tasksSlice.reducer
